@@ -41,7 +41,7 @@ app.post("/", async (req, res) => {
 
 app.put("/:id", async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const { firstName, lastName, age } = req.body;
         const updatedUser = await prisma.user.update({
             where: { id: id },
@@ -61,7 +61,7 @@ app.put("/:id", async (req, res) => {
 
 app.delete("/:id", async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const deletedUser = await prisma.user.delete({
             where: { id: id },
         });
@@ -69,6 +69,47 @@ app.delete("/:id", async (req, res) => {
             deletedUser,
         });
     } catch (error) {
+        res.json({
+            error,
+        });
+    }
+});
+
+app.post("/house", async (req, res) => {
+    try {
+        const { address, wifiPassword, ownerId, builtById } = req.body;
+        const newHouse = await prisma.house.create({
+            data: {
+                address,
+                wifiPassword,
+                ownerId,
+                builtById,
+            },
+        });
+        res.json({
+            newHouse,
+        });
+    } catch (error) {
+        console.log(error);
+        res.json({
+            error,
+        });
+    }
+});
+
+app.get("/house", async (req, res) => {
+    try {
+        const allHouses = await prisma.house.findMany({
+            include: {
+                owner: true,
+                builtBy: true,
+            },
+        });
+        res.json({
+            allHouses,
+        });
+    } catch (error) {
+        console.log(error);
         res.json({
             error,
         });
